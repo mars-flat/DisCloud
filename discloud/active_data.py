@@ -197,10 +197,12 @@ tasks = [
 def init(who):
     global client
     client = who
+
     with open(f"{db_directory}/db.json", "r") as f:
         global data
         data = json.load(f)
 
-    for task in tasks:
-        client.loop.create_task(task())
+    if client is not None:
+        for task in tasks:
+            client.loop.create_task(task())
 
