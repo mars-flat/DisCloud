@@ -203,3 +203,4 @@ def init(who):
 
     for task in tasks:
         client.loop.create_task(task())
+
