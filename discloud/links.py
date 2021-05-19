@@ -5,7 +5,7 @@ from . import active_data, whitelist, responder
 
 # Adds the media link to a specified entry name.
 
-async def add_media(message):
+async def add_link(message):
     guild_data = active_data.data[str(message.guild.id)]
 
     if str(message.author.id) not in guild_data["whitelist"]:
@@ -51,7 +51,7 @@ async def add_media(message):
 # Removes the specified entry name.
 
 
-async def remove_media(message):
+async def remove_link(message):
     guild_data = active_data.data[str(message.guild.id)]
 
     if str(message.author.id) not in guild_data["whitelist"]:
@@ -121,11 +121,11 @@ async def list_links(message):
 
     queried_page = 0
     parsed = message.content.split()
-    if len(parsed) == 1:
+    if len(parsed) == 2:
         pass
-    elif len(parsed) == 2:
+    elif len(parsed) == 3:
         try:
-            queried_page = int(parsed[1]) - 1
+            queried_page = int(parsed[2]) - 1
         except Exception:
             return await responder.respond(
                 message.channel,

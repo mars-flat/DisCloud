@@ -122,11 +122,11 @@ async def list_whitelist(message):
 
     queried_page = 0
     parsed = message.content.split()
-    if len(parsed) == 1:
+    if len(parsed) == 2:
         pass
-    elif len(parsed) == 2:
+    elif len(parsed) == 3:
         try:
-            queried_page = int(parsed[1]) - 1
+            queried_page = int(parsed[2]) - 1
         except Exception:
             return await responder.respond(
                 message.channel,

@@ -29,19 +29,31 @@ async def info(message):
     return await responder.respond(message.channel, embed)
 
 
-async def list_media(message):
-    await links.list_links(message)
+list_types = {
+    "links": links.list_links,
+    "whitelist": whitelist.list_whitelist
+}
 
 
-async def add_media():
-    pass
+async def filter_lists(message):
+    parsed = message.content.split()
+    if len(parsed) == 2 or len(parsed) == 3:
+        if parsed[1] in list_types:
+            return await list_types[parsed[1]](message)
+        return await responder.respond(
+            message.channel,
+            f"That is not a valid list type.",
+            False
+        )
+    else:
+        return await responder.respond(
+            message.channel,
+            f"The command did not give the arguments in the form `~list [type] (page)`",
+            False
+        )
 
 
-async def remove_media():
-    pass
-
-
-async def check_media(message):
+async def check_links(message):
     server_emotes = set(emote.name for emote in message.guild.emojis)
     if message.content.count(":") >= 2:
         count = 0
@@ -65,13 +77,13 @@ async def check_media(message):
 commands = {
     "~help": info,
 
-    "~list": list_media,
+    "~list": filter_lists,
 
     # requires whitelist
-    "~add": add_media,
+    "~add": links.add_link,
 
     # requires whitelist
-    "~remove": remove_media,
+    "~remove": links.remove_link,
 
     # requires administrator
     "~whitelist": whitelist.whitelist,
@@ -91,7 +103,7 @@ async def fire_command(message):
         return
 
     command = message.content
-    await check_media(message)
+    await check_links(message)
 
     for key in commands:
         if key in command.lower():
