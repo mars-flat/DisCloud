@@ -29,8 +29,8 @@ async def info(message):
     return await responder.respond(message.channel, embed)
 
 
-async def list_media():
-    pass
+async def list_media(message):
+    await whitelist.list_whitelist(message)
 
 
 async def add_media():
@@ -78,7 +78,6 @@ commands = {
 
     # requires administrator
     "~unwhitelist": whitelist.unwhitelist,
-
 
 }
 

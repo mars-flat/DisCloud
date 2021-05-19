@@ -1,9 +1,14 @@
 import discord
-from . import active_data, responder
+
+from . import active_data, whitelist, responder
 
 
-async def whitelist(message):
-    if not message.author.guild_permissions.administrator:
+# Adds the media link to a specified entry name.
+
+async def add_media(message):
+    guild_data = active_data.data[str(message.guild.id)]
+
+    if str(message.author.id) not in guild_data["whitelist"]:
         return await responder.respond(
             message.channel,
             f"You don't have the permission to run this command.",
@@ -11,28 +16,23 @@ async def whitelist(message):
         )
 
     parsed = message.content.split()
-    if len(parsed) == 2:
-        a = parsed[1]
-        a = a.replace("<", "")
-        a = a.replace(">", "")
-        a = a.replace("!", "")
-        a = a.replace("@", "")
+    if len(parsed) == 3:
+
+        if parsed[1] in guild_data["links"]:
+            return await responder.respond(
+                message.channel,
+                f"An entry with this name already exists.",
+                False
+            )
 
         try:
 
-            if a not in active_data.data[str(message.guild.id)]["whitelist"]:
-                active_data.data[str(message.guild.id)]["whitelist"].append(a)
-                return await responder.respond(
-                    message.channel,
-                    f"Successfully added `{a}` to the whitelist.",
-                    False
-                )
-            else:
-                return await responder.respond(
-                    message.channel,
-                    f"`{a}` is already whitelisted.",
-                    False
-                )
+            guild_data["links"][parsed[1]] = parsed[2]
+            return await responder.respond(
+                message.channel,
+                f"Successfully added `:{parsed[1]}:`.",
+                False
+            )
 
         except Exception:
             return await responder.respond(
@@ -40,20 +40,21 @@ async def whitelist(message):
                 f"An error occurred trying to add to the database.",
                 False
             )
-
     else:
         return await responder.respond(
             message.channel,
-            f"The command did not give the arguments in the form `~whitelist [user]`",
+            f"The command did not give the arguments in the form ~add [name] [link]",
             False
         )
 
 
-# un-whitelists users.
+# Removes the specified entry name.
 
 
-async def unwhitelist(message):
-    if not message.author.guild_permissions.administrator:
+async def remove_media(message):
+    guild_data = active_data.data[str(message.guild.id)]
+
+    if str(message.author.id) not in guild_data["whitelist"]:
         return await responder.respond(
             message.channel,
             f"You don't have the permission to run this command.",
@@ -62,24 +63,19 @@ async def unwhitelist(message):
 
     parsed = message.content.split()
     if len(parsed) == 2:
-        a = parsed[1]
-        a = a.replace("<", "")
-        a = a.replace(">", "")
-        a = a.replace("!", "")
-        a = a.replace("@", "")
-
         try:
-            if a in active_data.data[str(message.guild.id)]["whitelist"]:
-                active_data.data[str(message.guild.id)]["whitelist"].remove(a)
+
+            if parsed[1] in guild_data["links"]:
+                guild_data["links"].pop(parsed[1], None)
                 return await responder.respond(
                     message.channel,
-                    f"Successfully removed `{a}` from the whitelist.",
+                    f"Successfully removed `:{parsed[1]}:`.",
                     False
                 )
             else:
                 return await responder.respond(
                     message.channel,
-                    f"`{a}` is not in the whitelist.",
+                    f"An entry with this name does not exist.",
                     False
                 )
 
@@ -93,12 +89,12 @@ async def unwhitelist(message):
     else:
         return await responder.respond(
             message.channel,
-            f"The command did not give the arguments in the form `~unwhitelist [user]`",
+            f"The command did not give the arguments in the form ~remove [name]",
             False
         )
 
 
-async def list_whitelist(message):
+async def list_links(message):
     if str(message.guild.id) not in active_data.pages:
         active_data.pages[str(message.guild.id)] = {
             "links": [],
@@ -106,19 +102,21 @@ async def list_whitelist(message):
             "blacklist": []
         }
 
-    active_data.pages[str(message.guild.id)]["whitelist"].clear()
+    guild_pages = active_data.pages[str(message.guild.id)]
+
+    guild_pages["links"].clear()
     page = []
     counter = 1
-    for entry in active_data.data[str(message.guild.id)]["whitelist"]:
+    for entry in guild_pages["links"]:
         counter += 1
         page.append(f"{entry}")
         if counter > 20:
-            active_data.pages[str(message.guild.id)]["whitelist"].append(page.copy())
+            guild_pages["links"].append(page.copy())
             page.clear()
             counter = 1
 
     if len(page) > 0:
-        active_data.pages[str(message.guild.id)]["whitelist"].append(page)
+        guild_pages["links"].append(page)
 
     queried_page = 0
     parsed = message.content.split()
@@ -140,7 +138,7 @@ async def list_whitelist(message):
             False
         )
 
-    num_pages = len(active_data.pages[str(message.guild.id)]["whitelist"])
+    num_pages = len(guild_pages["links"])
     if num_pages == 0:
         return await responder.respond(
             message.channel,
@@ -148,7 +146,7 @@ async def list_whitelist(message):
             False
         )
 
-    if queried_page < 0 or queried_page >= len(active_data.pages[str(message.guild.id)]["whitelist"]):
+    if queried_page < 0 or queried_page >= num_pages:
         return await responder.respond(
             message.channel,
             f"The page {queried_page + 1} is not valid. "
@@ -157,13 +155,13 @@ async def list_whitelist(message):
         )
     else:
         text = "```"
-        for entry in active_data.pages[str(message.guild.id)]["whitelist"][queried_page]:
+        for entry in guild_pages["links"][queried_page]:
             text += entry + "\n"
 
         text += "```"
 
         embed = discord.Embed(
-            title="Media List",
+            title="Links",
             description=text,
             colour=discord.Colour.green(),
         )
@@ -189,9 +187,8 @@ async def list_whitelist(message):
                 "blacklist_lists": []
             }
 
-        if len(active_data.active_lists[str(message.guild.id)]["whitelist_lists"]) + 1 > 5:
-            active_data.active_lists[str(message.guild.id)]["whitelist_lists"].pop(0)
+        if len(active_data.active_lists[str(message.guild.id)]["links_lists"]) + 1 > 5:
+            active_data.active_lists[str(message.guild.id)]["links_lists"].pop(0)
 
-        active_data.active_lists[str(message.guild.id)]["whitelist_lists"].append([0, sent_message])
-
+        active_data.active_lists[str(message.guild.id)]["links_lists"].append([0, sent_message])
         return
