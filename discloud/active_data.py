@@ -5,7 +5,7 @@ import os
 
 # database directory
 
-db_directory = os.path.dirname(os.getcwd())
+db_directory = f"{os.path.dirname(os.getcwd())}\\DisCloud"
 
 # Globally accessible data for all modules to access
 
@@ -162,8 +162,7 @@ async def track_lists():
 async def update_data():
     await client.wait_until_ready()
     while not client.is_closed():
-        print(data)
-        with open(f"{db_directory}/db.json", "w") as out:
+        with open(f"{db_directory}\\db.json", "w") as out:
             json.dump(data, out)
 
         await asyncio.sleep(10)

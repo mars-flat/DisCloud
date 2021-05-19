@@ -1,6 +1,6 @@
-from active_data import client, data, pages, active_lists, server_emotes
+from . import active_data
+from . import responder
 import discord
-import responder
 
 
 async def info(message):
@@ -14,7 +14,7 @@ async def info(message):
     )
 
     embed.set_author(
-        name="DisCloud", icon_url=client.user.avatar_url
+        name="DisCloud", icon_url=active_data.client.user.avatar_url
     )
 
     embed.add_field(name="Commands:", value="\u200b", inline=False)
@@ -43,11 +43,11 @@ async def remove_media():
 
 
 async def check_media(message):
-    server_emotes.add(emote.name for emote in message.guild.emojis)
+    active_data.server_emotes.add(emote.name for emote in message.guild.emojis)
     if message.content.count(":") >= 2:
         count = 0
         for token in message.content.split(":"):
-            if token in data["data"]["media"] and token not in server_emotes:
+            if token in active_data.data["data"]["media"] and token not in active_data.server_emotes:
                 count += 1
                 if count > 3:
                     return await responder.respond(
@@ -57,7 +57,7 @@ async def check_media(message):
                     )
                 await responder.respond(
                     message.channel,
-                    data["data"]["media"][token],
+                    active_data.data["data"]["media"][token],
                     False
                 )
         return
@@ -90,12 +90,11 @@ commands = {
 
 
 async def fire_command(message):
-    if client is None:
+    if active_data.client is None:
         return
 
     command = message.content
-
-    check_media(message)
+    await check_media(message)
 
     for key in commands:
         if key in command.lower():
