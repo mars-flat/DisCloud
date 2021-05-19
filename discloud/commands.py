@@ -1,4 +1,4 @@
-from . import active_data, whitelist, responder
+from . import active_data, whitelist, responder, links
 import discord
 
 
@@ -30,7 +30,7 @@ async def info(message):
 
 
 async def list_media(message):
-    await whitelist.list_whitelist(message)
+    await links.list_links(message)
 
 
 async def add_media():

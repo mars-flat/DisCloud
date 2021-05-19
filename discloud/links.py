@@ -107,11 +107,12 @@ async def list_links(message):
     guild_pages["links"].clear()
     page = []
     counter = 1
-    for entry in guild_pages["links"]:
+    for entry in active_data.data[str(message.guild.id)]["links"]:
         counter += 1
-        page.append(f"{entry}")
+        page.append(f":{entry}:")
         if counter > 20:
             guild_pages["links"].append(page.copy())
+
             page.clear()
             counter = 1
 
