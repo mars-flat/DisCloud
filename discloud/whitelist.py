@@ -1,3 +1,5 @@
+import discord
+
 from . import active_data
 from . import responder
 
@@ -97,5 +99,87 @@ async def unwhitelist(message):
             False
         )
 
-async def list_whitelist():
-    pass
+
+async def list_whitelist(message):
+    active_data.pages[str(message.guild.id)]["whitelist"].clear()
+    page = []
+    counter = 1
+    for entry in active_data.data[str(message.guild.id)]["whitelist"]:
+        counter += 1
+        page.append(f":{entry}:")
+        if counter > 20:
+            active_data.pages[str(message.guild.id)]["whitelist"].append(page.copy())
+            page.clear()
+            counter = 1
+
+    if len(page) > 0:
+        active_data.pages[str(message.guild.id)]["whitelist"].append(page)
+
+    queried_page = 0
+    parsed = message.content.split()
+    if len(parsed) == 1:
+        pass
+    elif len(parsed) == 2:
+        try:
+            queried_page = int(parsed[1]) - 1
+        except Exception:
+            return await responder.respond(
+                message.channel,
+                f"This page is invalid.",
+                False
+            )
+    else:
+        return await responder.respond(
+            message.channel,
+            f"The command did not give the arguments in the form ~list (page)",
+            False
+        )
+
+    num_pages = len(active_data.pages[str(message.guild.id)]["whitelist"])
+    if num_pages == 0:
+        return await responder.respond(
+            message.channel,
+            f"There are no entries in the list.",
+            False
+        )
+
+    if queried_page < 0 or queried_page >= len(active_data.pages[str(message.guild.id)]["whitelist"]):
+        return await responder.respond(
+            message.channel,
+            f"The page {queried_page + 1} is not valid. "
+            f"Please use a number between {1} and {num_pages}",
+            False
+        )
+    else:
+        text = "```"
+        for entry in active_data.pages[str(message.guild.id)]["whitelist"][queried_page]:
+            text += entry + "\n"
+
+        text += "```"
+
+        embed = discord.Embed(
+            title="Media List",
+            description=text,
+            colour=discord.Colour.green(),
+        )
+
+        embed.set_author(
+            name="DisCloud", icon_url=active_data.client.user.avatar_url
+        )
+
+        embed.set_footer(text=f"Displaying page {queried_page + 1} of {num_pages}")
+
+        sent_message = await responder.respond(
+            message.channel,
+            embed
+        )
+
+        await sent_message.add_reaction("⬅️")
+        await sent_message.add_reaction("➡️")
+
+        if len(active_data.active_lists[str(message.guild.id)]["whitelist_lists"]) + 1 > 5:
+            active_data.active_lists[str(message.guild.id)]["whitelist_lists"].pop(0)
+
+        active_data.active_lists[str(message.guild.id)]["whitelist_lists"].append([0, sent_message])
+
+        return

@@ -164,7 +164,7 @@ async def update_data():
         with open(f"{db_directory}\\db.json", "w") as out:
             json.dump(data, out)
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
 
 
 # Allocates a section in the database for new servers.

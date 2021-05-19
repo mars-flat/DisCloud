@@ -1,5 +1,4 @@
-from . import active_data
-from . import responder
+from . import active_data, whitelist, responder
 import discord
 
 
@@ -74,12 +73,11 @@ commands = {
     # requires whitelist
     "~remove": remove_media,
 
+    # requires administrator
+    "~whitelist": whitelist.whitelist,
 
     # requires administrator
-    # "~whitelist": whitelist.whitelist,
-
-    # requires administrator
-    # "~unwhitelist": whitelist.unwhitelist,
+    "~unwhitelist": whitelist.unwhitelist,
 
 
 }
