@@ -1,5 +1,5 @@
-from active_data import *
-
+from active_data import client, data, pages, active_lists, server_emotes
+import discord
 import responder
 
 
