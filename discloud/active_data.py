@@ -3,7 +3,8 @@ import json
 import asyncio
 import os
 
-# database directory,
+# database directory
+
 db_directory = os.path.dirname(os.getcwd())
 
 # Globally accessible data for all modules to access

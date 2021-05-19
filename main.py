@@ -1,5 +1,4 @@
-from discloud import *
-
+from discloud import active_data, commands
 import discord
 import settings
 
@@ -16,8 +15,9 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
+    await commands.fire_command(message)
 
-    pass
+active_data.init(bot)
 
 bot.run(settings.token)
 
