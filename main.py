@@ -19,6 +19,5 @@ async def on_message(message):
     await commands.fire_command(message)
 
 active_data.init(bot)
-
 bot.run(settings.token)
 

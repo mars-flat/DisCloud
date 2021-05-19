@@ -135,7 +135,7 @@ async def list_links(message):
     else:
         return await responder.respond(
             message.channel,
-            f"The command did not give the arguments in the form ~list (page)",
+            f"The command did not give the arguments in the form ~list [type] (page)",
             False
         )
 

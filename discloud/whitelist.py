@@ -136,7 +136,7 @@ async def list_whitelist(message):
     else:
         return await responder.respond(
             message.channel,
-            f"The command did not give the arguments in the form ~list (page)",
+            f"The command did not give the arguments in the form ~list [type] (page)",
             False
         )
 
@@ -158,12 +158,13 @@ async def list_whitelist(message):
     else:
         text = "```"
         for entry in active_data.pages[str(message.guild.id)]["whitelist"][queried_page]:
-            text += entry + "\n"
+            user = await active_data.client.fetch_user(int(entry))
+            text += str(user) + "\n"
 
         text += "```"
 
         embed = discord.Embed(
-            title="Media List",
+            title="Whitelisted users",
             description=text,
             colour=discord.Colour.green(),
         )
