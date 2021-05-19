@@ -33,19 +33,23 @@ stores list pages in batches of 20
 Format:
 
 { 
-    "links": [[batch], [batch]...], 
-    "whitelist": [[batch], [batch]...],
-    "blacklist": [[batch], [batch]...],
-
+    [Guild id]: {
+        "links": [[batch], [batch]...], 
+        "whitelist": [[batch], [batch]...],
+        "blacklist": [[batch], [batch]...],
+    }
+    
+    [Guild id]: {
+        "links": [[batch], [batch]...], 
+        "whitelist": [[batch], [batch]...],
+        "blacklist": [[batch], [batch]...],
+    }
+    ...
 }
 
 '''
 
-pages = {
-    "links": [],
-    "whitelist": [],
-    "blacklist": []
-}
+pages = {}
 
 '''
 
@@ -59,29 +63,24 @@ blacklist lists
 Format:
 
 { 
-    "links_lists": [[page, message], [page, message]...], 
-    "whitelist_lists": [[page, message], [page, message]...], 
-    "blacklist_lists": [[page, message], [page, message]...] 
+    [Guild id]: {
+        "links_lists": [[page, message], [page, message]...], 
+        "whitelist_lists": [[page, message], [page, message]...], 
+        "blacklist_lists": [[page, message], [page, message]...] 
+    }
+    [Guild id]: {
+        "links_lists": [[page, message], [page, message]...], 
+        "whitelist_lists": [[page, message], [page, message]...], 
+        "blacklist_lists": [[page, message], [page, message]...] 
+    }
+    ...
 }
 
-Each category of lists will track the last five active lists of its kind.
+Each category of lists will track the last five active lists of its kind per guild.
 
 '''
 
-active_lists = {
-    "links_lists": [],
-    "whitelist_lists": [],
-    "blacklist_lists": []
-}
-
-'''
-
-stores server emotes as a set
-Prevents conflicts with in-server emotes
-
-'''
-
-server_emotes = set()
+active_lists = {}
 
 
 # Coroutine to track the last 5 lists.

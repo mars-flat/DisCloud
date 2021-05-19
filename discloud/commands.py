@@ -43,11 +43,11 @@ async def remove_media():
 
 
 async def check_media(message):
-    active_data.server_emotes.add(emote.name for emote in message.guild.emojis)
+    server_emotes = set(emote.name for emote in message.guild.emojis)
     if message.content.count(":") >= 2:
         count = 0
         for token in message.content.split(":"):
-            if token in active_data.data[str(message.guild.id)]["links"] and token not in active_data.server_emotes:
+            if token in active_data.data[str(message.guild.id)]["links"] and token not in server_emotes:
                 count += 1
                 if count > 3:
                     return await responder.respond(
