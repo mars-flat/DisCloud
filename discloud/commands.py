@@ -47,7 +47,7 @@ async def check_media(message):
     if message.content.count(":") >= 2:
         count = 0
         for token in message.content.split(":"):
-            if token in active_data.data["data"]["media"] and token not in active_data.server_emotes:
+            if token in active_data.data[str(message.guild.id)]["links"] and token not in active_data.server_emotes:
                 count += 1
                 if count > 3:
                     return await responder.respond(
@@ -57,7 +57,7 @@ async def check_media(message):
                     )
                 await responder.respond(
                     message.channel,
-                    active_data.data["data"]["media"][token],
+                    active_data.data[str(message.guild.id)]["links"][token],
                     False
                 )
         return

@@ -175,8 +175,8 @@ async def setup_guilds():
     await client.wait_until_ready()
     while not client.is_closed():
         for guild in client.guilds:
-            if guild.id not in data:
-                data[guild.id] = {"links": {}, "whitelist": [], "blacklist": []}
+            if str(guild.id) not in data:
+                data[str(guild.id)] = {"links": {}, "whitelist": [], "blacklist": []}
 
         await asyncio.sleep(10)
 
@@ -198,7 +198,7 @@ def init(who):
     global client
     client = who
 
-    with open(f"{db_directory}/db.json", "r") as f:
+    with open(f"{db_directory}\\db.json", "r") as f:
         global data
         data = json.load(f)
 
