@@ -15,7 +15,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-
     await commands.fire_command(message)
 
 active_data.init(bot)

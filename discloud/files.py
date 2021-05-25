@@ -7,21 +7,17 @@ from . import active_data, whitelist, responder, utils
 
 async def add_link(message):
     guild_data = active_data.data[str(message.guild.id)]
-
     if str(message.author.id) not in guild_data["whitelist"]:
         return await utils.permission_denied(message)
-
     parsed = message.content.split()
-
     attachment = message.attachments[0] if len(message.attachments) > 0 else None
-
     if len(parsed) == 3:
-
         if parsed[1] in guild_data["links"]:
             return await responder.respond(
                 message.channel,
                 f"An entry with this name already exists.",
-                False
+                False,
+                delete_after=5
             )
 
         try:
@@ -29,7 +25,8 @@ async def add_link(message):
             return await responder.respond(
                 message.channel,
                 f"Successfully added `{parsed[1]}`.",
-                False
+                False,
+                delete_after=5
             )
 
         except AttributeError:
@@ -41,7 +38,8 @@ async def add_link(message):
             return await responder.respond(
                 message.channel,
                 f"An entry with this name already exists.",
-                False
+                False,
+                delete_after=5
             )
 
         try:
@@ -49,7 +47,8 @@ async def add_link(message):
             return await responder.respond(
                 message.channel,
                 f"Successfully added `{parsed[1]}`.",
-                False
+                False,
+                delete_after=5
             )
 
         except AttributeError:
@@ -132,7 +131,7 @@ async def list_links(message):
 
     queried_page = 0
     parsed = message.content.split()
-    if len(parsed) == 2:
+    if len(parsed) == 1 or len(parsed) == 2:
         pass
     elif len(parsed) == 3:
         try:
@@ -146,7 +145,7 @@ async def list_links(message):
     else:
         return await responder.respond(
             message.channel,
-            f"The command did not give the arguments in the form ~list [type] (page)",
+            f"The command did not give the arguments in the form ~list (type) (page)",
             False
         )
 

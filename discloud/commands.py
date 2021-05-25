@@ -1,4 +1,4 @@
-from . import active_data, whitelist, responder, links
+from . import active_data, whitelist, responder, files, utils
 import discord
 
 
@@ -17,6 +17,10 @@ async def info(message):
     )
 
     embed.add_field(name="Commands:", value="\u200b", inline=False)
+    embed.add_field(
+        name="~open [filename 1] (filename 2) (filename 3)",
+        value="Opens files with given names.",
+        inline=False)
     embed.add_field(name="`~help`", value="Displays this message.", inline=False)
     embed.add_field(name="`~add [name] [link]`", value="Adds an entry.", inline=False)
     embed.add_field(name="`~remove [name]`", value="Removes an entry.", inline=False)
@@ -30,14 +34,15 @@ async def info(message):
 
 
 list_types = {
-    "links": links.list_links,
+    "links": files.list_links,
     "whitelist": whitelist.list_whitelist
 }
 
 
 async def filter_lists(message):
-    parsed = message.content.split()
+    parsed = utils.tokenize(message.content, " ")
     list_type = parsed[1] if 2 <= len(parsed) <= 3 else "links"
+
     if list_type in list_types:
         return await list_types[list_type](message)
     return await responder.respond(
@@ -47,25 +52,24 @@ async def filter_lists(message):
     )
 
 
-async def check_links(message):
-    server_emotes = set(emote.name for emote in message.guild.emojis)
-    if message.content.count(":") >= 2:
-        count = 0
-        for token in message.content.split(":"):
-            if token in active_data.data[str(message.guild.id)]["links"] and token not in server_emotes:
-                count += 1
-                if count > 3:
-                    return await responder.respond(
-                        message.channel,
-                        f"You may only load 3 entries at once.",
-                        False
-                    )
-                await responder.respond(
+async def open_file(message):
+    parsed = utils.tokenize(message.content.replace("~open ", ""), " ")
+    counter = 0
+    for token in parsed:
+        counter += 1
+        if token in active_data.data[str(message.guild.id)]["links"]:
+            if counter > 3:
+                return await responder.respond(
                     message.channel,
-                    active_data.data[str(message.guild.id)]["links"][token],
-                    False
+                    f"You may only load 3 entries at once.",
+                    False,
+                    delete_after=5
                 )
-        return
+            await responder.respond(
+                message.channel,
+                active_data.data[str(message.guild.id)]["links"][token],
+                False
+            )
 
 
 commands = {
@@ -73,11 +77,13 @@ commands = {
 
     "~list": filter_lists,
 
-    # requires whitelist
-    "~add": links.add_link,
+    "~open": open_file,
 
     # requires whitelist
-    "~remove": links.remove_link,
+    "~add": files.add_link,
+
+    # requires whitelist
+    "~remove": files.remove_link,
 
     # requires administrator
     "~whitelist": whitelist.whitelist,
@@ -97,7 +103,6 @@ async def fire_command(message):
         return
 
     command = message.content
-    await check_links(message)
 
     for key in commands:
         if key in command.lower():
