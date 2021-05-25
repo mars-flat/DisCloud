@@ -1,6 +1,6 @@
 import discord
 
-from . import active_data, whitelist, responder
+from . import active_data, whitelist, responder, utils
 
 
 # Adds the media link to a specified entry name.
@@ -9,13 +9,12 @@ async def add_link(message):
     guild_data = active_data.data[str(message.guild.id)]
 
     if str(message.author.id) not in guild_data["whitelist"]:
-        return await responder.respond(
-            message.channel,
-            f"You don't have the permission to run this command.",
-            False
-        )
+        return await utils.permission_denied(message)
 
     parsed = message.content.split()
+
+    attachment = message.attachments[0] if len(message.attachments) > 0 else None
+
     if len(parsed) == 3:
 
         if parsed[1] in guild_data["links"]:
@@ -26,26 +25,38 @@ async def add_link(message):
             )
 
         try:
-
-            guild_data["links"][parsed[1]] = parsed[2]
+            guild_data["links"][parsed[1]] = str(parsed[2])
             return await responder.respond(
                 message.channel,
-                f"Successfully added `:{parsed[1]}:`.",
+                f"Successfully added `{parsed[1]}`.",
                 False
             )
 
-        except Exception:
+        except AttributeError:
+            return await utils.error_occurred(message)
+
+    elif len(parsed) == 2 and attachment is not None:
+
+        if parsed[1] in guild_data["links"]:
             return await responder.respond(
                 message.channel,
-                f"An error occurred trying to add to the database.",
+                f"An entry with this name already exists.",
                 False
             )
+
+        try:
+            guild_data["links"][parsed[1]] = str(attachment.url)
+            return await responder.respond(
+                message.channel,
+                f"Successfully added `{parsed[1]}`.",
+                False
+            )
+
+        except AttributeError:
+            return await utils.error_occurred(message)
+
     else:
-        return await responder.respond(
-            message.channel,
-            f"The command did not give the arguments in the form ~add [name] [link]",
-            False
-        )
+        return await utils.bad_arguments(message, intended="~add [name] [link]")
 
 
 # Removes the specified entry name.
@@ -69,7 +80,7 @@ async def remove_link(message):
                 guild_data["links"].pop(parsed[1], None)
                 return await responder.respond(
                     message.channel,
-                    f"Successfully removed `:{parsed[1]}:`.",
+                    f"Successfully removed `{parsed[1]}`.",
                     False
                 )
             else:

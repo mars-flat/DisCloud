@@ -7,7 +7,7 @@ async def info(message):
         title="Help",
         description=f"This is a template for your very own DisCloud. "
                     f"Feel free to customize it however you want! "
-                    f"If you ever get stuck you can check out the "
+                    f"If you ever get stuck you can check ~out the "
                     f"documentation at <PLACEHOLDER>",
         colour=discord.Colour.green(),
     )
@@ -37,20 +37,14 @@ list_types = {
 
 async def filter_lists(message):
     parsed = message.content.split()
-    if len(parsed) == 2 or len(parsed) == 3:
-        if parsed[1] in list_types:
-            return await list_types[parsed[1]](message)
-        return await responder.respond(
-            message.channel,
-            f"That is not a valid list type.",
-            False
-        )
-    else:
-        return await responder.respond(
-            message.channel,
-            f"The command did not give the arguments in the form `~list [type] (page)`",
-            False
-        )
+    list_type = parsed[1] if 2 <= len(parsed) <= 3 else "links"
+    if list_type in list_types:
+        return await list_types[list_type](message)
+    return await responder.respond(
+        message.channel,
+        f"That is not a valid list type.",
+        False
+    )
 
 
 async def check_links(message):

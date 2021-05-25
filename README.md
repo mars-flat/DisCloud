@@ -18,3 +18,12 @@
 # Setup
 
 `[placeholder]`
+
+#TODOs
+
+implement emoji and file system
+
+move links into another folder
+
+massive linting
+
